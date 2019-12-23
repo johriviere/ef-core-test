@@ -3,5 +3,9 @@
     "EFGetStarted": {
       "commandName": "Project"
     }
+  },
+  "ConnectionStrings" : {
+    "BloggingConnection": "Data Source=blogging.db"
   }
+
 }

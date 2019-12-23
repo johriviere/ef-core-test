@@ -1,5 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace EFGetStarted
 {
@@ -8,40 +10,63 @@ namespace EFGetStarted
         static void Main(string[] args)
         {
 
-            using (var db = new BloggingContext())
-            {
-                // Create
-                Console.WriteLine("Inserting a new blog");
-                db.Add(new Blog { Url = "http://blogs.msdn.com/adonet" });
-                db.SaveChanges();
-
-                // Read
-                Console.WriteLine("Querying for a blog");
-                var blog = db.Blogs
-                    .OrderBy(b => b.BlogId)
-                    .First();
-
-                // Update
-                Console.WriteLine("Updating the blog and adding a post");
-                blog.Url = "https://devblogs.microsoft.com/dotnet";
-                blog.Posts.Add(
-                    new Post
-                    {
-                        Title = "Hello World",
-                        Content = "I wrote an app using EF Core!"
-                    });
-                db.SaveChanges();
-
-                // Delete
-                Console.WriteLine("Delete the blog");
-                db.Remove(blog);
-                db.SaveChanges();
-            }
+            BuildWebHost(args).Services.GetService<Worker>().Run();
 
 
+            //// 1. 
+            //var services = RegisterServices();
 
+            //// 2.
+            //var serviceProvider = services.BuildServiceProvider();
 
-
+            //// 3.
+            //var worker = serviceProvider.GetService<Worker>();
+            //worker.Run();
         }
+          
+
+        private static IServiceCollection RegisterServices()
+        {
+            var services = new ServiceCollection();
+
+            // config
+            var config = LoadConfiguration();
+            services.AddSingleton(config);
+
+            // ef core
+            //services.AddDbContextPool<BloggingContext>(opt => opt.UseSqlite("Data Source=blogging.db"));
+            services.AddDbContextPool<BloggingContext>(opt => opt.UseSqlite(config.GetConnectionString("BloggingConnection")));
+
+            // business classes
+            services.AddTransient<Worker>();
+
+            return services;
+        }
+
+        public static IConfiguration LoadConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false,
+                             reloadOnChange: true);
+            return builder.Build();
+        }
+
+        private static UselessWrapper BuildWebHost(string[] args)
+        {
+            // create service collection
+            var services = RegisterServices();
+
+            // create service provider
+            var serviceProvider = services.BuildServiceProvider();
+            return new UselessWrapper { Services = serviceProvider };
+        }
+
+        private class UselessWrapper
+        {
+            public System.IServiceProvider Services { get; set; }
+        }
+
+
     }
 }
