@@ -9,11 +9,17 @@ namespace EFGetStarted
     {
         static void Main(string[] args)
         {
+            // 1. 
+            var services = RegisterServices();
 
-            BuildWebHost(args).Services.GetService<Worker>().Run();
+            // 2.
+            var serviceProvider = services.BuildServiceProvider();
+
+            // 3.
+            var worker = serviceProvider.GetService<Worker>();
+            worker.Run();
         }
           
-
         private static IServiceCollection RegisterServices()
         {
             var services = new ServiceCollection();
@@ -39,22 +45,5 @@ namespace EFGetStarted
                              reloadOnChange: true);
             return builder.Build();
         }
-
-        private static UselessWrapper BuildWebHost(string[] args)
-        {
-            // create service collection
-            var services = RegisterServices();
-
-            // create service provider
-            var serviceProvider = services.BuildServiceProvider();
-            return new UselessWrapper { Services = serviceProvider };
-        }
-
-        private class UselessWrapper
-        {
-            public System.IServiceProvider Services { get; set; }
-        }
-
-
     }
 }
