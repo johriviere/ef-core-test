@@ -13,11 +13,5 @@ namespace EFGetStarted
             : base(options)
         {
         }
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlite("Data Source=blogging.db");
-        //}
-
     }
 }

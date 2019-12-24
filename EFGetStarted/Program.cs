@@ -11,17 +11,6 @@ namespace EFGetStarted
         {
 
             BuildWebHost(args).Services.GetService<Worker>().Run();
-
-
-            //// 1. 
-            //var services = RegisterServices();
-
-            //// 2.
-            //var serviceProvider = services.BuildServiceProvider();
-
-            //// 3.
-            //var worker = serviceProvider.GetService<Worker>();
-            //worker.Run();
         }
           
 
@@ -34,7 +23,6 @@ namespace EFGetStarted
             services.AddSingleton(config);
 
             // ef core
-            //services.AddDbContextPool<BloggingContext>(opt => opt.UseSqlite("Data Source=blogging.db"));
             services.AddDbContextPool<BloggingContext>(opt => opt.UseSqlite(config.GetConnectionString("BloggingConnection")));
 
             // business classes
